@@ -1,10 +1,11 @@
-const ajaxUtil = require('../util/ajaxUtil');
 const express = require('express');
 const joi = require('joi');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
+const ajaxUtil = require('../util/ajaxUtil');
 
 const config = require('../../config');
+
 const router = express.Router();
 const services = require('../services');
 const Users = require('../models/Users');
@@ -12,11 +13,11 @@ const Users = require('../models/Users');
 const failedLoginResponse = 'Failed login.';
 
 const setAuthToken = (res, username) => {
-  let expirationSeconds = 60 * 60 * 24 * 7; // one week
-  let cookieExpiration = Date.now() + expirationSeconds * 1000;
+  const expirationSeconds = 60 * 60 * 24 * 7; // one week
+  const cookieExpiration = Date.now() + expirationSeconds * 1000;
 
   // Create token if the password matched and no error was thrown.
-  let token = jwt.sign({username}, config.secret, {
+  const token = jwt.sign({username}, config.secret, {
     expiresIn: expirationSeconds,
   });
 
@@ -60,10 +61,9 @@ router.post('/authenticate', (req, res) => {
 
     if (isMatch && !err) {
       return setAuthToken(res, credentials.username);
-    } else {
-      // Incorrect password.
-      return res.status(401).json({message: failedLoginResponse});
     }
+    // Incorrect password.
+    return res.status(401).json({message: failedLoginResponse});
   });
 });
 
@@ -99,7 +99,7 @@ router.post('/register', (req, res) => {
       }
 
       setAuthToken(res, req.body.username);
-    }
+    },
   );
 });
 
@@ -148,7 +148,7 @@ router.patch('/users/:username', (req, res, next) => {
     userPatch.port = null;
   }
 
-  Users.updateUser(username, userPatch, user => {
+  Users.updateUser(username, userPatch, (user) => {
     Users.lookupUser({username}, (err, user) => {
       if (err) return req.status(500).json({error: err});
       services.updateUserServices(user);
@@ -167,7 +167,7 @@ router.put('/users', (req, res, next) => {
       socketPath: req.body.socketPath,
       isAdmin: false,
     },
-    ajaxUtil.getResponseFn(res)
+    ajaxUtil.getResponseFn(res),
   );
 });
 
